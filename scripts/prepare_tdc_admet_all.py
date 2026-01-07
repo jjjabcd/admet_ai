@@ -80,22 +80,35 @@ def prepare_tdc_admet_all(save_dir: Path, skip_datasets: list[str] = None) -> No
                 for label_name, smiles_to_target in zip(label_names, data)
             }
         )
+        
+        # create dataset directory
+        dataset_dir = save_dir / data_name
+        dataset_dir.mkdir(parents=True, exist_ok=True)
 
         # Process each label as a separate dataset
         for label_name in label_names:
             # Get label data
             label_data = data[[ADMET_ALL_SMILES_COLUMN, label_name]]
             label_data = label_data[label_data[label_name].notna()]
+            
+            if label_name == data_name:
+                full_name = label_name
+            else:
+                full_name = f"{data_name}_{label_name}"
+
+            dataset_type = DATASET_TO_TYPE.get(label_name, "classification")
 
             # Compute class balance
-            if DATASET_TO_TYPE[label_name] == "classification":
-                class_balance = label_data[label_name].value_counts(normalize=True)[1]
+            if dataset_type == "classification":
+                class_balance = label_data[label_name].value_counts(normalize=True).get(1, 0)
             else:
                 class_balance = None
+                
+            full_display_name = f"{data_name}/{label_name}"
 
             dataset_stats.append(
                 {
-                    "name": label_name,
+                    "name": full_display_name,
                     "size": len(label_data),
                     "min": label_data[label_name].min(),
                     "max": label_data[label_name].max(),
@@ -104,7 +117,8 @@ def prepare_tdc_admet_all(save_dir: Path, skip_datasets: list[str] = None) -> No
             )
 
             # Save data
-            label_data.to_csv(save_dir / f"{label_name}.csv", index=False)
+            label_data.to_csv(dataset_dir / f"{full_name}.csv", index=False)
+
 
     # Print dataset stats
     dataset_stats = pd.DataFrame(dataset_stats).set_index("name")

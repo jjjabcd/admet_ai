@@ -64,6 +64,7 @@ DATASET_TO_TYPE = {
     "LD50_Zhu": "regression",
     "hERG": "classification",
     "herg_central": "classification",
+    "hERG_inhib": "classification",
     "hERG_Karim": "classification",
     "AMES": "classification",
     "DILI": "classification",
