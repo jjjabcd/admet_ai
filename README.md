@@ -16,6 +16,7 @@ details, and please cite us if ADMET-AI is useful in your work. Instructions to 
 
 [ADMET-AI: A machine learning ADMET platform for evaluation of large-scale chemical libraries](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/btae416/7698030?utm_source=authortollfreelink&utm_campaign=bioinformatics&utm_medium=email&guestAccessKey=f4fca1d2-49ec-4b10-b476-5aea3bf37045)
 
+[Original Repository](https://github.com/swansonk14/admet_ai.git)
 
 ## Table of Contents
 
@@ -30,42 +31,51 @@ details, and please cite us if ADMET-AI is useful in your work. Instructions to 
 ADMET-AI can be installed in a few minutes on any operating system using pip (optionally within a conda environment). If
 a GPU is available, it will be used by default, but the code can also run on CPUs only.
 
-Optionally, create a conda environment.
+Clone the repo and install ADMET-AI locally.
 
+```bash
+git clone https://github.com/jjjabcd/admet_ai.git
+cd admet_ai
+```
+
+Install Environment
 ```bash
 conda create -y -n admet_ai python=3.12
 conda activate admet_ai
-```
-
-Install ADMET-AI via pip.
-
-```bash
-pip install admet-ai
-```
-
-Alternatively, clone the repo and install ADMET-AI locally.
-
-```bash
-git clone https://github.com/swansonk14/admet_ai.git
-cd admet_ai
-pip install -e .
-```
-
-By default, the pip installation only includes dependencies required for making ADMET predictions, either via the
-command line or via the Python API. To install dependencies required for processing TDC data or plotting TDC results,
-run `pip install admet-ai[tdc]`. To install dependencies required for hosting the ADMET-AI web server,
-run `pip install admet-ai[web]`.
-
-If there are version issues with the required packages, create a conda environment with specific working versions of the
-packages as follows.
-
-```bash
 pip install -r requirements.txt
-pip install -e .
+pip install -e ".[tdc]"
 ```
 
 Note: If you get the issue `ImportError: libXrender.so.1: cannot open shared object file: No such file or directory`,
 run `conda install -c conda-forge xorg-libxrender`.
+
+## Download TDC dataset
+```bash
+python scripts/prepare_tdc_admet_all.py \
+    --save_dir data/tdc_admet_all \
+    --skip_datasets herg_central hERG_Karim ToxCast
+```
+
+Usage of `--skip_datasets`
+
+The `--skip_datasets` flag is optional. You can choose to use it or not based on your needs:
+
+- Download All: If you omit this flag, the script will download the entire TDC ADMET collection.
+
+- Skip Specifics: Use this flag to exclude certain datasets (e.g., ToxCast) to save download time and disk space, or to avoid redundant data.
+
+### Storage Structure
+The data will be organized into subfolders named after each dataset, witch individual CSV files for each label (task).
+```
+data/tdc_admet_all/
+├── Tox21/
+│   ├── NR-AhR.csv
+│   └── ...
+├── Caco2_Wang/
+│   └── Caco2_Wang.csv
+└── ...
+```
+
 
 ## Predicting ADMET properties
 
@@ -100,17 +110,6 @@ preds = model.predict(smiles="O(c1ccc(cc1)CCOC)CC(O)CNC(C)C")
 If a SMILES string is provided, then `preds` is a dictionary mapping property names to values. If a list of SMILES
 strings is provided, then `preds` is a Pandas DataFrame where the index is the SMILES and the columns are the
 properties.
-
-### Web server
-
-ADMET predictions can be made using the ADMET-AI web server, as illustrated below. Note: Running the following command
-requires additional web dependencies (i.e., `pip install admet-ai[web]`).
-
-```bash
-admet_web
-```
-
-Then navigate to http://127.0.0.1:5000 to view the website.
 
 ### Analysis plots
 
