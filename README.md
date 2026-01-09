@@ -40,7 +40,7 @@ cd admet_ai
 
 Install Environment
 ```bash
-conda create -y -n admet_ai python=3.12
+conda create -y -n admet_ai python=3.11
 conda activate admet_ai
 pip install -r requirements.txt
 pip install -e ".[tdc]"
